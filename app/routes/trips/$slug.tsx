@@ -12,7 +12,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import type { CsvInputs, Trip } from '~/types';
+import type { Vehicle, Trip } from '~/types';
 import { getGasGuzzler, getInputs, getTrip } from '~/utils/csv.server';
 import {
   formatResponse,
@@ -38,8 +38,8 @@ export let meta: MetaFunction = ({ data }) => {
 };
 
 interface LoaderData {
-  guzzler: CsvInputs;
-  vehicle: CsvInputs;
+  ice: Vehicle;
+  vehicle: Vehicle;
   trip: Trip;
 }
 
@@ -47,21 +47,19 @@ export let loader: LoaderFunction = async ({ params }) => {
   invariant(params.slug, 'expected params.slug');
   const inputs = await getInputs();
   const trip = await getTrip(params.slug);
-  const guzzler = await getGasGuzzler();
+  const ice = await getGasGuzzler();
   const vehicle = inputs[params.slug];
-  return json({ guzzler, vehicle, trip });
+  return json({ ice, vehicle, trip });
 };
 
 export default function Index() {
   let inputs = useLoaderData<LoaderData>();
   const [chartType, setChartType] = React.useState<'cost' | 'carbon'>('cost');
-  const { trip, vehicle, guzzler } = inputs;
-  const vehicleMpk = parseFloat(vehicle['Miles per kWh']);
-  const guzzlerMpg = parseFloat(guzzler['Miles per gallon']);
+  const { trip, vehicle, ice } = inputs;
 
   const data = React.useMemo(
-    () => formatResponse(trip, vehicleMpk, guzzlerMpg),
-    [trip]
+    () => formatResponse(trip, vehicle, ice),
+    [trip, vehicle, ice]
   );
 
   return (
@@ -86,33 +84,41 @@ export default function Index() {
       />
 
       <div>
-        <input
-          type="radio"
-          value="cost"
-          name="results"
-          checked={chartType === 'cost'}
-          onChange={e => setChartType('cost')}
-        />{' '}
-        Cost Per Month
-        <input
-          type="radio"
-          value="carbon"
-          name="results"
-          checked={chartType === 'carbon'}
-          onChange={e => setChartType('carbon')}
-        />{' '}
-        Carbon Emissions Per Month
+        <label>
+          <input
+            type="radio"
+            value="cost"
+            name="results"
+            checked={chartType === 'cost'}
+            onChange={e => setChartType('cost')}
+          />{' '}
+          Cost Per Month
+        </label>{' '}
+        <label>
+          <input
+            type="radio"
+            value="carbon"
+            name="results"
+            checked={chartType === 'carbon'}
+            onChange={e => setChartType('carbon')}
+          />{' '}
+          Carbon Emissions Per Month
+        </label>
       </div>
       <div>
         <div>
           Total Savings for miles traveled{' '}
           {thousandsFormatter.format(data.totalMiles)}{' '}
           {chartType === 'cost'
-            ? calculateSavings(data.totalMiles, vehicleMpk, guzzlerMpg)
+            ? calculateSavings(
+                data.totalMiles,
+                parseFloat(vehicle['Miles per kWh']),
+                parseFloat(ice['Miles per gallon'])
+              )
             : `${calculateEmissionsDifference(
                 data.totalMiles,
-                vehicleMpk,
-                guzzlerMpg
+                parseFloat(vehicle['Miles per kWh']),
+                parseFloat(ice['Miles per gallon'])
               )} lbs CO2`}
         </div>
       </div>

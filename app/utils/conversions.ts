@@ -1,5 +1,5 @@
 import * as constants from '../constants';
-import type { Trip } from '~/types';
+import type { Trip, Vehicle } from '~/types';
 
 export const LBS_CO2_PER_KWH = 0.9;
 
@@ -38,32 +38,30 @@ export const dollarFormatter = new Intl.NumberFormat('en-US', {
 export function calculateSavings(
   miles: number,
   vehicleMpk: number,
-  guzzlerMpg: number
+  iceMpg: number
 ) {
   return dollarFormatter.format(
-    costPerMileGas(miles, guzzlerMpg) - costPerMileKwh(miles, vehicleMpk)
+    costPerMileGas(miles, iceMpg) - costPerMileKwh(miles, vehicleMpk)
   );
 }
 
 export function calculateEmissionsDifference(
   miles: number,
   vehicleMpk: number,
-  guzzlerMpg: number
+  iceMpg: number
 ) {
   return thousandsFormatter.format(
     Math.round(
-      CO2EmissionsPerMileGas(miles, guzzlerMpg) -
+      CO2EmissionsPerMileGas(miles, iceMpg) -
         CO2EmissionsPerMileEV(miles, vehicleMpk)
     )
   );
 }
 
-export function formatResponse(
-  trip: Trip,
-  vehicleMpk: number,
-  guzzlerMpg: number
-) {
+export function formatResponse(trip: Trip, vehicle: Vehicle, ice: Vehicle) {
   const miles = constants.MONTHS.map(month => parseInt(trip[month], 10));
+  const vehicleMpk = parseFloat(vehicle['Miles per kWh']);
+  const iceMpg = parseFloat(ice['Miles per gallon']);
 
   const labels = constants.MONTHS.map(
     (month, i) => `${month}: ${trip[month]} miles`
@@ -72,17 +70,15 @@ export function formatResponse(
     labels,
     datasets: [
       {
-        label: 'EV',
+        label: `EV - ${vehicle.Year} ${vehicle.Make} ${vehicle.Model}`,
         data: miles.map(miles =>
           roundFloat2(costPerMileKwh(miles, vehicleMpk))
         ),
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
       {
-        label: 'Gas',
-        data: miles.map(miles =>
-          roundFloat2(costPerMileGas(miles, guzzlerMpg))
-        ),
+        label: `ICE - ${ice.Year} ${ice.Make} ${ice.Model}`,
+        data: miles.map(miles => roundFloat2(costPerMileGas(miles, iceMpg))),
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
       },
     ],
@@ -91,16 +87,16 @@ export function formatResponse(
     labels,
     datasets: [
       {
-        label: 'EV',
+        label: `EV - ${vehicle.Year} ${vehicle.Make} ${vehicle.Model}`,
         data: miles.map(miles =>
           Math.round(CO2EmissionsPerMileEV(miles, vehicleMpk))
         ),
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
       {
-        label: 'Gas',
+        label: `ICE - ${ice.Year} ${ice.Make} ${ice.Model}`,
         data: miles.map(miles =>
-          Math.round(CO2EmissionsPerMileGas(miles, guzzlerMpg))
+          Math.round(CO2EmissionsPerMileGas(miles, iceMpg))
         ),
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
       },

@@ -22,7 +22,7 @@ export interface Trip extends Months {
   Year: string;
 }
 
-export interface CsvInputs {
+export interface Vehicle {
   slug: string;
   'Capacity (kWh)': string;
   Classification: string;
@@ -40,9 +40,9 @@ export interface CsvInputs {
 }
 
 export type HeaderMap = {
-  [key: string]: keyof CsvInputs;
+  [key: string]: keyof Vehicle;
 };
 
 export type InputRes = {
-  [id: string]: CsvInputs;
+  [id: string]: Vehicle;
 };

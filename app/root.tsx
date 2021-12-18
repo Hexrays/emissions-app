@@ -1,5 +1,6 @@
 import {
   Links,
+  Link,
   LiveReload,
   Meta,
   Outlet,
@@ -119,7 +120,9 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="remix-app">
       <header className="remix-app__header">
-        <h1>⚡</h1>
+        <Link to="/" className="header_link">
+          ⚡
+        </Link>
       </header>
       <div className="container remix-app__main-content">{children}</div>
     </div>
