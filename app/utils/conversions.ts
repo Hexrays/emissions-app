@@ -105,6 +105,5 @@ export function formatResponse(trip: Trip, vehicle: Vehicle, ice: Vehicle) {
   return {
     cost,
     carbon,
-    totalMiles: miles.reduce((acc, curr) => acc + curr, 0),
   };
 }

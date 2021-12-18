@@ -2,33 +2,15 @@ import * as React from 'react';
 import type { MetaFunction, LoaderFunction, LinksFunction } from 'remix';
 import { useLoaderData, json } from 'remix';
 import invariant from 'tiny-invariant';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
 import type { Vehicle, Trip } from '~/types';
 import { getGasGuzzler, getInputs, getTrip } from '~/utils/csv.server';
 import {
-  formatResponse,
   calculateSavings,
   calculateEmissionsDifference,
   thousandsFormatter,
 } from '~/utils/conversions';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import BarGraph from '~/components/bar-graph';
+import { MONTHS } from '~/constants';
 
 export let meta: MetaFunction = ({ data }) => {
   const title = `⚡ ${data?.vehicle.Year} ${data?.vehicle.Make} ${data?.vehicle.Model}`;
@@ -57,31 +39,14 @@ export default function Index() {
   const [chartType, setChartType] = React.useState<'cost' | 'carbon'>('cost');
   const { trip, vehicle, ice } = inputs;
 
-  const data = React.useMemo(
-    () => formatResponse(trip, vehicle, ice),
-    [trip, vehicle, ice]
+  const totalMiles = MONTHS.reduce(
+    (total, month) => total + parseInt(trip[month], 10),
+    0
   );
 
   return (
     <div className="trips">
-      <Bar
-        options={{
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'top' as const,
-            },
-            title: {
-              display: true,
-              text:
-                chartType === 'cost'
-                  ? 'Cost Per Month'
-                  : 'LBS CO2 Emitted Per Month',
-            },
-          },
-        }}
-        data={chartType === 'carbon' ? data.carbon : data.cost}
-      />
+      <BarGraph trip={trip} vehicle={vehicle} ice={ice} chartType={chartType} />
 
       <div>
         <label>
@@ -108,15 +73,15 @@ export default function Index() {
       <div>
         <div>
           Total Savings for miles traveled{' '}
-          {thousandsFormatter.format(data.totalMiles)}{' '}
+          {thousandsFormatter.format(totalMiles)}{' '}
           {chartType === 'cost'
             ? calculateSavings(
-                data.totalMiles,
+                totalMiles,
                 parseFloat(vehicle['Miles per kWh']),
                 parseFloat(ice['Miles per gallon'])
               )
             : `${calculateEmissionsDifference(
-                data.totalMiles,
+                totalMiles,
                 parseFloat(vehicle['Miles per kWh']),
                 parseFloat(ice['Miles per gallon'])
               )} lbs CO2`}

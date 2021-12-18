@@ -46,3 +46,5 @@ export type HeaderMap = {
 export type InputRes = {
   [id: string]: Vehicle;
 };
+
+export type ChartType = 'cost' | 'carbon';
