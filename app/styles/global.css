@@ -164,4 +164,5 @@ input:where([type='search']) {
 
 .app main {
   justify-content: center;
+  width: 100%;
 }
