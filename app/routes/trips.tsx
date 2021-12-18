@@ -17,7 +17,6 @@ export let meta: MetaFunction = () => {
   };
 };
 
-// https://remix.run/api/app#links
 export let links: LinksFunction = () => {
   return [{ rel: 'stylesheet', href: tripsStylesUrl }];
 };
