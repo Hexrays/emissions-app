@@ -10,7 +10,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import type { Vehicle, Trip, ChartType } from '~/types';
-import { formatResponse } from '~/utils/conversions';
+import { formatBarData } from '~/utils/conversions';
 
 ChartJS.register(
   CategoryScale,
@@ -35,7 +35,7 @@ export default function BarGraph({
   chartType,
 }: BarGraphProps) {
   const data = React.useMemo(
-    () => formatResponse(trip, vehicle, ice),
+    () => formatBarData(trip, vehicle, ice),
     [trip, vehicle, ice]
   );
 

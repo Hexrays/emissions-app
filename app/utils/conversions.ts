@@ -58,7 +58,7 @@ export function calculateEmissionsDifference(
   );
 }
 
-export function formatResponse(trip: Trip, vehicle: Vehicle, ice: Vehicle) {
+export function formatBarData(trip: Trip, vehicle: Vehicle, ice: Vehicle) {
   const miles = constants.MONTHS.map(month => parseInt(trip[month], 10));
   const vehicleMpk = parseFloat(vehicle['Miles per kWh']);
   const iceMpg = parseFloat(ice['Miles per gallon']);
