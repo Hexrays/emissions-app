@@ -11,6 +11,7 @@ import {
 import { Bar } from 'react-chartjs-2';
 import type { Vehicle, Trip, ChartType } from '~/types';
 import { formatBarData } from '~/utils/conversions';
+import useWindowSize from '~/hooks/useWindowSize';
 
 ChartJS.register(
   CategoryScale,
@@ -34,29 +35,33 @@ export default function BarGraph({
   trip,
   chartType,
 }: BarGraphProps) {
+  const { width: windowWidth } = useWindowSize();
   const data = React.useMemo(
     () => formatBarData(trip, vehicle, ice),
     [trip, vehicle, ice]
   );
 
   return (
-    <Bar
-      options={{
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'top' as const,
+    <div className="chart-container">
+      <Bar
+        options={{
+          responsive: true,
+          aspectRatio: windowWidth && windowWidth < 600 ? 1 : 1.5,
+          plugins: {
+            legend: {
+              position: 'top' as const,
+            },
+            title: {
+              display: true,
+              text:
+                chartType === 'cost'
+                  ? 'Cost Per Month'
+                  : 'LBS CO2 Emitted Per Month',
+            },
           },
-          title: {
-            display: true,
-            text:
-              chartType === 'cost'
-                ? 'Cost Per Month'
-                : 'LBS CO2 Emitted Per Month',
-          },
-        },
-      }}
-      data={chartType === 'carbon' ? data.carbon : data.cost}
-    />
+        }}
+        data={chartType === 'carbon' ? data.carbon : data.cost}
+      />
+    </div>
   );
 }
