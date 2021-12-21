@@ -15,7 +15,7 @@ import { MONTHS } from '~/constants';
 export let meta: MetaFunction = ({ data }) => {
   const title = `⚡ ${data?.vehicle.Year} ${data?.vehicle.Make} ${data?.vehicle.Model}`;
   return {
-    title: title || 'oops',
+    title: title,
   };
 };
 

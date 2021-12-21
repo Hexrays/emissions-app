@@ -29,9 +29,9 @@ export let loader: LoaderFunction = async ({ params }) => {
 
 export let action: ActionFunction = async ({ request }) => {
   let formData = await request.formData();
-  let trip = formData.get('trip');
+  let slug = formData.get('slug');
 
-  return redirect(`/trips/${trip}`);
+  return redirect(`/trips/${slug}`);
 };
 
 interface LoaderData {
