@@ -77,8 +77,8 @@ export default function Index() {
       </div>
       <div>
         <div>
-          Total Savings for miles traveled{' '}
-          {thousandsFormatter.format(totalMiles)}{' '}
+          Total savings for {thousandsFormatter.format(totalMiles)} miles
+          traveled:{' '}
           {chartType === 'cost'
             ? calculateSavings(
                 totalMiles,
