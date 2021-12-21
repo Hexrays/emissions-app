@@ -28,9 +28,14 @@ interface LoaderData {
 export let loader: LoaderFunction = async ({ params }) => {
   invariant(params.slug, 'expected params.slug');
   const inputs = await getInputs();
-  const trip = await getTrip(params.slug);
   const ice = await getGasGuzzler();
   const vehicle = inputs[params.slug];
+  const trip = await getTrip(params.slug);
+  if (!trip) {
+    throw new Response('Trip Not Found', {
+      status: 404,
+    });
+  }
   return json({ ice, vehicle, trip });
 };
 
