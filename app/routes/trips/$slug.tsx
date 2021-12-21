@@ -11,6 +11,7 @@ import {
 } from '~/utils/conversions';
 import BarGraph from '~/components/bar-graph';
 import { MONTHS } from '~/constants';
+import LineChart from '~/components/line-chart';
 
 export let meta: MetaFunction = ({ data }) => {
   const title = `⚡ ${data?.vehicle.Year} ${data?.vehicle.Make} ${data?.vehicle.Model}`;
@@ -51,6 +52,7 @@ export function CatchBoundary() {
 export default function Slug() {
   let inputs = useLoaderData<LoaderData>();
   const [chartType, setChartType] = React.useState<'cost' | 'carbon'>('cost');
+  const [isAccumulated, setIsAccumulated] = React.useState(false);
   const { trip, vehicle, ice } = inputs;
 
   const totalMiles = MONTHS.reduce(
@@ -60,7 +62,21 @@ export default function Slug() {
 
   return (
     <div className="trips">
-      <BarGraph trip={trip} vehicle={vehicle} ice={ice} chartType={chartType} />
+      {isAccumulated ? (
+        <LineChart
+          trip={trip}
+          vehicle={vehicle}
+          ice={ice}
+          chartType={chartType}
+        />
+      ) : (
+        <BarGraph
+          trip={trip}
+          vehicle={vehicle}
+          ice={ice}
+          chartType={chartType}
+        />
+      )}
 
       <div>
         <label>
@@ -82,6 +98,17 @@ export default function Slug() {
             onChange={e => setChartType('carbon')}
           />{' '}
           Carbon Emissions Per Month
+        </label>
+      </div>
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            name="results"
+            checked={isAccumulated}
+            onChange={() => setIsAccumulated(prev => !prev)}
+          />{' '}
+          Accumulate
         </label>
       </div>
       <div>

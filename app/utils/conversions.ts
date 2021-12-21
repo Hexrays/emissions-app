@@ -107,3 +107,78 @@ export function formatBarData(trip: Trip, vehicle: Vehicle, ice: Vehicle) {
     carbon,
   };
 }
+
+function accumulate(arr: number[]) {
+  return arr.reduce((acc, curr, i) => {
+    const prevIndex = i - 1;
+    const prev = acc[prevIndex];
+    if (acc[prevIndex]) {
+      acc.push(prev + curr);
+    } else {
+      acc.push(curr);
+    }
+    return acc;
+  }, [] as number[]);
+}
+
+export function formatAccumulationData(
+  trip: Trip,
+  vehicle: Vehicle,
+  ice: Vehicle
+) {
+  const miles = constants.MONTHS.map(month => parseInt(trip[month], 10));
+  const vehicleMpk = parseFloat(vehicle['Miles per kWh']);
+  const iceMpg = parseFloat(ice['Miles per gallon']);
+
+  const labels = constants.MONTHS.map(
+    (month, i) => `${month}: ${trip[month]} miles`
+  );
+  const cost = {
+    labels,
+    datasets: [
+      {
+        label: `EV - ${vehicle.Year} ${vehicle.Make} ${vehicle.Model}`,
+        data: accumulate(
+          miles.map(miles => roundFloat2(costPerMileKwh(miles, vehicleMpk)))
+        ),
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      },
+      {
+        label: `ICE - ${ice.Year} ${ice.Make} ${ice.Model}`,
+        data: accumulate(
+          miles.map(miles => roundFloat2(costPerMileGas(miles, iceMpg)))
+        ),
+        borderColor: 'rgb(53, 162, 235)',
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+      },
+    ],
+  };
+  const carbon = {
+    labels,
+    datasets: [
+      {
+        label: `EV - ${vehicle.Year} ${vehicle.Make} ${vehicle.Model}`,
+        data: accumulate(
+          miles.map(miles =>
+            Math.round(CO2EmissionsPerMileEV(miles, vehicleMpk))
+          )
+        ),
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      },
+      {
+        label: `ICE - ${ice.Year} ${ice.Make} ${ice.Model}`,
+        data: accumulate(
+          miles.map(miles => Math.round(CO2EmissionsPerMileGas(miles, iceMpg)))
+        ),
+        borderColor: 'rgb(53, 162, 235)',
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+      },
+    ],
+  };
+  return {
+    cost,
+    carbon,
+  };
+}
