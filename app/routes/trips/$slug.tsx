@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { MetaFunction, LoaderFunction, LinksFunction } from 'remix';
+import { MetaFunction, LoaderFunction } from 'remix';
 import { useLoaderData, json } from 'remix';
 import invariant from 'tiny-invariant';
 import type { Vehicle, Trip } from '~/types';
@@ -34,12 +34,21 @@ export let loader: LoaderFunction = async ({ params }) => {
   if (!trip) {
     throw new Response('Trip Not Found', {
       status: 404,
+      statusText: 'Trip Not Found',
     });
   }
   return json({ ice, vehicle, trip });
 };
 
-export default function Index() {
+export function CatchBoundary() {
+  return (
+    <div>
+      <h2>We couldn't find that page! Select another trip.</h2>
+    </div>
+  );
+}
+
+export default function Slug() {
   let inputs = useLoaderData<LoaderData>();
   const [chartType, setChartType] = React.useState<'cost' | 'carbon'>('cost');
   const { trip, vehicle, ice } = inputs;
